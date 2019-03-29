@@ -115,6 +115,49 @@ echo "$output"
 run sudo $WORKDIR/proxysql-admin --write-node
 echo "$output"
         [ "$status" -eq 1 ]
+        [[ "${lines[0]}" =~ .*--write-node.* ]]
+}
+
+@test "run proxysql-admin --write-node with missing port" {
+run sudo $WORKDIR/proxysql-admin --write-node=1.1.1.1,2.2.2.2:44 --disable
+echo "$output"
+        [ "$status" -eq 1 ]
+        [[ "${lines[0]}" =~ ERROR.*--write-node.*expected.* ]]
+
+run sudo $WORKDIR/proxysql-admin --write-node=[1:1:1:1],[2:2:2:2]:44 --disable
+echo "$output"
+        [ "$status" -eq 1 ]
+        [[ "${lines[0]}" =~ ERROR.*--write-node.*expected.* ]]
+}
+
+@test 'run proxysql-admin --include-slaves without --use-slave-as-writer' {
+run sudo $WORKDIR/proxysql-admin --include-slave=127.0.0.1:4110
+echo "$output"
+        [ "$status" -eq 1 ]
+}
+
+@test 'run proxysql-admin --max-connections without parameters' {
+run sudo $WORKDIR/proxysql-admin --max-connections
+echo "$output"
+        [ "$status" -eq 1 ]
+}
+
+@test 'run proxysql-admin --max-connections without parameters' {
+run sudo $WORKDIR/proxysql-admin --max-connections=
+echo "$output"
+        [ "$status" -eq 1 ]
+}
+
+@test 'run proxysql-admin --max-connections with non-number parameter' {
+run sudo $WORKDIR/proxysql-admin --max-connections=abc
+echo "$output"
+        [ "$status" -eq 1 ]
+}
+
+@test 'run proxysql-admin --max-connections with negative values' {
+run sudo $WORKDIR/proxysql-admin --max-connections=-1
+echo "$output"
+        [ "$status" -eq 1 ]
 }
 
 @test "run proxysql-admin --version check" {
